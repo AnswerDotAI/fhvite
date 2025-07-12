@@ -5,4 +5,6 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://AnswerDotAI.github.io',
                 'git_url': 'https://github.com/AnswerDotAI/fhvite',
                 'lib_path': 'fhvite'},
-  'syms': {'fhvite.core': {'fhvite.core.foo': ('core.html#foo', 'fhvite/core.py')}}}
+  'syms': { 'fhvite.core': { 'fhvite.core._mk_scripts': ('core.html#_mk_scripts', 'fhvite/core.py'),
+                             'fhvite.core.add_vite': ('core.html#add_vite', 'fhvite/core.py'),
+                             'fhvite.core.setup_files': ('core.html#setup_files', 'fhvite/core.py')}}}
