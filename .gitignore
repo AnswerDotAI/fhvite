@@ -1,5 +1,9 @@
 _docs/
 _proc/
+node_modules/
+dist/
+.sesskey
+static/
 
 *.bak
 .gitattributes
