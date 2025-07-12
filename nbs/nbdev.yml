@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fhvite"
+  site-url: "https://AnswerDotAI.github.io/fhvite"
+  description: "Vite plugin for FastHTML/MonsterUI that automates installation & building"
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/fhvite"
