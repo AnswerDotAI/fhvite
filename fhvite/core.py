@@ -12,7 +12,7 @@ from fastcore.utils import *
 
 # %% ../nbs/00_core.ipynb 6
 # TODO: move this to github and pull from there
-_files = {'vite.config.js': '''import franken from "franken-ui/plugin-vite";
+_monster_temp = {'vite.config.js': '''import franken from "franken-ui/plugin-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
@@ -111,11 +111,65 @@ export default defineConfig({
 import "./style.css";'''
 }
 
-# %% ../nbs/00_core.ipynb 8
-def setup_files(root_dir, entry_file):
+# %% ../nbs/00_core.ipynb 7
+_basecoat_temp = {'vite.config.js': '''import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [tailwindcss()],
+  css: {
+    transformer: "lightningcss",
+  },
+  build: {
+    cssMinify: "lightningcss",
+    manifest: true,
+    rollupOptions: {
+      input: "src/index.js",
+    },
+    outDir: '../dist',
+    emptyOutDir: true
+  },
+});''',
+        
+        'package.json': '''{
+  "name": "fastvite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "lightningcss": "^1.30.1",
+    "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "basecoat-css": "^0.2.8"
+  }
+}''',
+        
+        'src/style.css': '''@import "tailwindcss";
+@source "../../";
+
+@layer base {
+  body {
+    @apply antialiased min-h-screen box-border;
+  }
+}''',
+         'src/index.js': '''import "vite/modulepreload-polyfill";
+import "./style.css";
+import "basecoat-css/all";'''
+}
+
+# %% ../nbs/00_core.ipynb 9
+def setup_files(root_dir, entry_file, use_monster):
     "Setup Vite files in project, with FastHTML configuration"
     n_files = 0
-    for path,ctx in _files.items():
+    templ = _monster_temp if use_monster else _basecoat_temp
+    for path,ctx in templ.items():
         path = Path(root_dir)/path
         path.parent.mkdir(parents=True, exist_ok=True)
         if not path.exists():
@@ -123,10 +177,10 @@ def setup_files(root_dir, entry_file):
             print(f"Created: {path}")
             n_files+=1
     if n_files:
-        # Only run npm install if any files created (for now)
-        subprocess.run("npm install", cwd=root_dir, shell=True, check=True)
+        # Only run npm/bun install if any files created (for now)
+        subprocess.run("bun install", cwd=root_dir, shell=True, check=True)
 
-# %% ../nbs/00_core.ipynb 12
+# %% ../nbs/00_core.ipynb 13
 def _mk_scripts(dirname, entry_file):
     "Create necessary vite headers and inject into app"
     manifest = loads(Path('dist/.vite/manifest.json').read_text())
@@ -157,7 +211,7 @@ def _mk_scripts(dirname, entry_file):
     
     return hdrs
 
-# %% ../nbs/00_core.ipynb 17
+# %% ../nbs/00_core.ipynb 18
 _monster_head = [
     Link(rel="preconnect", href='https://cdn.jsdelivr.net'),
     Script("""
@@ -185,18 +239,20 @@ _monster_head = [
     Script(src="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/icon.iife.js", type="module")
 ]
 
-# %% ../nbs/00_core.ipynb 18
-def add_vite(app:FastHTML, entry_file='index.js', dirname='static'):
+# %% ../nbs/00_core.ipynb 19
+def add_vite(app:FastHTML, entry_file='index.js', dirname='static', use_monster=True):
     "Configure app to use vite"
     
     # 1. Setup files & install with npm
-    setup_files(root_dir=dirname, entry_file=entry_file)
+    setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
     
     # 2. Run vite build process
-    subprocess.run('npm run build', cwd=dirname, shell=True, check=True)
+    subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
     
     # 3. Splice script/link injections into headers
-    app.hdrs[2:2] = [*_mk_scripts(dirname=dirname, entry_file=entry_file), *_monster_head]
+    def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
+    if use_monster: def_hdrs.append(_monster_head)
+    app.hdrs[2:2] = def_hdrs
     
     # 4. Mount static route to serve output files
     app.mount(f'/{dirname}', app=StaticFiles(directory='dist'), name=dirname)
