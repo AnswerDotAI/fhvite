@@ -34,7 +34,7 @@ export default defineConfig({
     rollupOptions: {
       input: "src/index.js",
     },
-    outDir: '../dist',
+    outDir: './dist',
     emptyOutDir: true
   },
 });''',
@@ -50,12 +50,12 @@ export default defineConfig({
     "preview": "vite preview"
   },
   "devDependencies": {
-    "lightningcss": "^1.30.1",
-    "vite": "^7.0.0"
+    "lightningcss": "^1.30.2",
+    "vite": "^7.1.10"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.11",
-    "franken-ui": "^2.1.0-next.14"
+    "@tailwindcss/vite": "^4.1.14",
+    "franken-ui": "^2.1.0"
   }
 }''',
         
@@ -77,17 +77,11 @@ export default defineConfig({
   --color-primary: oklch(from hsl(var(--primary)) l c h);
   --color-primary-foreground: oklch(from hsl(var(--primary-foreground)) l c h);
   --color-secondary: oklch(from hsl(var(--secondary)) l c h);
-  --color-secondary-foreground: oklch(
-    from hsl(var(--secondary-foreground)) l c h
-  );
+  --color-secondary-foreground: oklch(from hsl(var(--secondary-foreground)) l c h);
   --color-accent: oklch(from hsl(var(--accent)) l c h);
   --color-accent-foreground: oklch(from hsl(var(--accent-foreground)) l c h);
-  --color-destructive: oklch(
-    from hsl(var(--destructive)) l c h / var(--destructive-alpha, 1)
-  );
-  --color-destructive-foreground: oklch(
-    from hsl(var(--destructive-foreground)) l c h
-  );
+  --color-destructive: oklch(from hsl(var(--destructive)) l c h / var(--destructive-alpha, 1));
+  --color-destructive-foreground: oklch(from hsl(var(--destructive-foreground)) l c h);
   --color-ring: oklch(from hsl(var(--ring)) l c h);
 
   --font-geist-sans:
@@ -108,7 +102,9 @@ export default defineConfig({
   }
 }''',
          'src/index.js': '''import "vite/modulepreload-polyfill";
-import "./style.css";'''
+import "./style.css";
+import "franken-ui/js/core.iife";
+import "franken-ui/js/icon.iife";'''
 }
 
 # %% ../nbs/00_core.ipynb 7
@@ -126,7 +122,7 @@ export default defineConfig({
     rollupOptions: {
       input: "src/index.js",
     },
-    outDir: '../dist',
+    outDir: './dist',
     emptyOutDir: true
   },
 });''',
@@ -142,12 +138,12 @@ export default defineConfig({
     "preview": "vite preview"
   },
   "devDependencies": {
-    "lightningcss": "^1.30.1",
-    "vite": "^7.0.0"
+    "lightningcss": "^1.30.2",
+    "vite": "^7.1.10"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.11",
-    "basecoat-css": "^0.2.8"
+    "@tailwindcss/vite": "^4.1.14",
+    "basecoat-css": "^0.3.2"
   }
 }''',
         
@@ -183,7 +179,7 @@ def setup_files(root_dir, entry_file, use_monster):
 # %% ../nbs/00_core.ipynb 13
 def _mk_scripts(dirname, entry_file):
     "Create necessary vite headers and inject into app"
-    manifest = loads(Path('dist/.vite/manifest.json').read_text())
+    manifest = loads(Path(dirname).joinpath('dist/.vite/manifest.json').read_text())
     entry = f'src/{entry_file}'
     def _imported_chunks(name, seen=None):
         if seen is None: seen = set()
@@ -234,25 +230,22 @@ _monster_head = [
     htmlElement.classList.add(__FRANKEN__.theme || "uk-theme-zinc");
     htmlElement.classList.add(__FRANKEN__.radii || "uk-radii-md");
     htmlElement.classList.add(__FRANKEN__.shadows || "uk-shadows-md");
-    htmlElement.classList.add(__FRANKEN__.font || "uk-font-sm");"""),
-    Script(src="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/core.iife.js", type="module"),
-    Script(src="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/icon.iife.js", type="module")
+    htmlElement.classList.add(__FRANKEN__.font || "uk-font-sm");""")
 ]
 
 # %% ../nbs/00_core.ipynb 19
 def add_vite(app:FastHTML, entry_file='index.js', dirname='static', use_monster=True):
     "Configure app to use vite"
-    
     # 1. Setup files & install with npm
     setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
     
-    # 2. Run vite build process
+    # 2. Build compiled assets
     subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
     
     # 3. Splice script/link injections into headers
     def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
     if use_monster: def_hdrs.append(_monster_head)
-    app.hdrs[2:2] = def_hdrs
+    app.hdrs[0:0] = def_hdrs
     
     # 4. Mount static route to serve output files
-    app.mount(f'/{dirname}', app=StaticFiles(directory='dist'), name=dirname)
+    app.mount(f'/{dirname}', app=StaticFiles(directory=Path(dirname)/'dist'), name=dirname)
