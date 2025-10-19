@@ -83,16 +83,16 @@ export default defineConfig({
   --color-destructive: oklch(from hsl(var(--destructive)) l c h / var(--destructive-alpha, 1));
   --color-destructive-foreground: oklch(from hsl(var(--destructive-foreground)) l c h);
   --color-ring: oklch(from hsl(var(--ring)) l c h);
-
-  --font-geist-sans:
-    Geist Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
-  --font-geist-mono:
-    Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
 }
 
 @layer base {
+  :root {
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+  @supports (font-variation-settings: normal) {
+    :root { font-family: InterVariable, sans-serif; }
+  }
   button,
   [role="button"] {
     cursor: pointer;
@@ -151,6 +151,13 @@ export default defineConfig({
 @source "../../";
 
 @layer base {
+  :root {
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+  @supports (font-variation-settings: normal) {
+    :root { font-family: InterVariable, sans-serif; }
+  }
   body {
     @apply antialiased min-h-screen box-border;
   }
@@ -208,6 +215,11 @@ def _mk_scripts(dirname, entry_file):
     return hdrs
 
 # %% ../nbs/00_core.ipynb 18
+_inter_head = [
+    Link(rel="preconnect", href="https://rsms.me/"),
+    Link(rel="stylesheet", href="https://rsms.me/inter/inter.css")
+]
+
 _monster_head = [
     Link(rel="preconnect", href='https://cdn.jsdelivr.net'),
     Script("""
@@ -234,7 +246,7 @@ _monster_head = [
 ]
 
 # %% ../nbs/00_core.ipynb 19
-def add_vite(app:FastHTML, entry_file='index.js', dirname='static', use_monster=True):
+def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True):
     "Configure app to use vite"
     # 1. Setup files & install with npm
     setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
@@ -243,7 +255,7 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='static', use_monster=
     subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
     
     # 3. Splice script/link injections into headers
-    def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
+    def_hdrs = [*_inter_head, *_mk_scripts(dirname=dirname, entry_file=entry_file)]
     if use_monster: def_hdrs.append(_monster_head)
     app.hdrs[0:0] = def_hdrs
     
