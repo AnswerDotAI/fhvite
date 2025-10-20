@@ -148,6 +148,7 @@ export default defineConfig({
 }''',
         
         'src/style.css': '''@import "tailwindcss";
+@import "basecoat-css";
 @source "../../";
 
 @layer base {
