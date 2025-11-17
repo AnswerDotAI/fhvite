@@ -249,16 +249,19 @@ _monster_head = [
 # %% ../nbs/00_core.ipynb 19
 def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True):
     "Configure app to use vite"
-    # 1. Setup files & install with npm
-    setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
-    
-    # 2. Build compiled assets
-    subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
-    
-    # 3. Splice script/link injections into headers
-    def_hdrs = [*_inter_head, *_mk_scripts(dirname=dirname, entry_file=entry_file)]
-    if use_monster: def_hdrs.append(_monster_head)
-    app.hdrs[0:0] = def_hdrs
-    
-    # 4. Mount static route to serve output files
-    app.mount(f'/{dirname}', app=StaticFiles(directory=Path(dirname)/'dist'), name=dirname)
+    async def life(o):
+        # 1. Setup files & install with npm
+        setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
+
+        # 2. Build compiled assets
+        subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
+
+        # 3. Splice script/link injections into headers
+        def_hdrs = [*_inter_head, *_mk_scripts(dirname=dirname, entry_file=entry_file)]
+        if use_monster: def_hdrs.append(_monster_head)
+        app.hdrs[0:0] = def_hdrs
+
+        # 4. Mount static route to serve output files
+        app.mount(f'/{dirname}', app=StaticFiles(directory=Path(dirname)/'dist'), name=dirname)
+        yield
+    app.set_lifespan(life)
