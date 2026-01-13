@@ -6,7 +6,7 @@
 __all__ = ['setup_files', 'add_vite']
 
 # %% ../nbs/00_core.ipynb 3
-import subprocess
+import subprocess, shutil
 from fasthtml.common import *
 from fastcore.utils import *
 
@@ -86,13 +86,6 @@ export default defineConfig({
 }
 
 @layer base {
-  :root {
-    font-family: Inter, sans-serif;
-    font-feature-settings: 'liga' 1, 'calt' 1;
-  }
-  @supports (font-variation-settings: normal) {
-    :root { font-family: InterVariable, sans-serif; }
-  }
   button,
   [role="button"] {
     cursor: pointer;
@@ -152,13 +145,6 @@ export default defineConfig({
 @source "../../";
 
 @layer base {
-  :root {
-    font-family: Inter, sans-serif;
-    font-feature-settings: 'liga' 1, 'calt' 1;
-  }
-  @supports (font-variation-settings: normal) {
-    :root { font-family: InterVariable, sans-serif; }
-  }
   body {
     @apply antialiased min-h-screen box-border;
   }
@@ -171,6 +157,8 @@ import "basecoat-css/all";'''
 # %% ../nbs/00_core.ipynb 9
 def setup_files(root_dir, entry_file, use_monster):
     "Setup Vite files in project, with FastHTML configuration"
+    if shutil.which('bun') is None:
+        subprocess.run('curl -fsSL https://bun.sh/install | bash', shell=True, check=True)
     n_files = 0
     templ = _monster_temp if use_monster else _basecoat_temp
     for path,ctx in templ.items():
@@ -199,7 +187,7 @@ def _mk_scripts(dirname, entry_file):
             yield manifest[imp]
     
     def _url(path):
-        joined = '/'.join(filter(None, [dirname, path]))
+        joined = '/'.join(filter(None, [dirname, Path(path).name]))
         return f'/{joined}'
     
     entry_chunk = manifest[entry]
@@ -216,13 +204,7 @@ def _mk_scripts(dirname, entry_file):
     return hdrs
 
 # %% ../nbs/00_core.ipynb 18
-_inter_head = [
-    Link(rel="preconnect", href="https://rsms.me/"),
-    Link(rel="stylesheet", href="https://rsms.me/inter/inter.css")
-]
-
 _monster_head = [
-    Link(rel="preconnect", href='https://cdn.jsdelivr.net'),
     Script("""
     const htmlElement = document.documentElement;
 
@@ -247,9 +229,13 @@ _monster_head = [
 ]
 
 # %% ../nbs/00_core.ipynb 19
-def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True):
+def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.'):
     "Configure app to use vite"
-    async def life(o):
+    pwd = Path(directory)/dirname
+    outdir = pwd/'dist/assets'
+    if not outdir.exists(): outdir.mkdir(parents=True, exist_ok=True)
+    app.mount(f'/{dirname}', app=StaticNoCache(directory=pwd/'dist/assets'), name=dirname)
+    async def _run(o):
         # 1. Setup files & install with npm
         setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
 
@@ -257,11 +243,12 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monste
         subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
 
         # 3. Splice script/link injections into headers
-        def_hdrs = [*_inter_head, *_mk_scripts(dirname=dirname, entry_file=entry_file)]
+        def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
         if use_monster: def_hdrs.append(_monster_head)
         app.hdrs[0:0] = def_hdrs
 
-        # 4. Mount static route to serve output files
-        app.mount(f'/{dirname}', app=StaticFiles(directory=Path(dirname)/'dist'), name=dirname)
-        yield
-    app.set_lifespan(life)
+        # Run old lifespan (if set)
+        if app.lifespan:
+            async for _ in app.lifespan(o): yield
+        else: yield
+    app.set_lifespan(_run)
