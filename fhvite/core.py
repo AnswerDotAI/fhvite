@@ -155,7 +155,7 @@ import "basecoat-css/all";'''
 }
 
 # %% ../nbs/00_core.ipynb #f74565d6
-def setup_files(root_dir, entry_file, use_monster):
+def setup_files(root_dir, entry_file, use_monster=True):
     "Setup Vite files in project, with FastHTML configuration"
     if shutil.which('bun') is None:
         subprocess.run('curl -fsSL https://bun.sh/install | bash', shell=True, check=True)
