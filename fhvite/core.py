@@ -155,10 +155,13 @@ import "basecoat-css/all";'''
 }
 
 # %% ../nbs/00_core.ipynb #f74565d6
+_bun = 'bun'
 def setup_files(root_dir, entry_file, use_monster=True):
     "Setup Vite files in project, with FastHTML configuration"
+    global _bun
     if shutil.which('bun') is None:
         subprocess.run('curl -fsSL https://bun.sh/install | bash', shell=True, check=True)
+    _bun = shutil.which('bun') or os.path.expanduser('~/.bun/bin/bun')
     n_files = 0
     templ = _monster_temp if use_monster else _basecoat_temp
     for path,ctx in templ.items():
@@ -167,10 +170,8 @@ def setup_files(root_dir, entry_file, use_monster=True):
         if not path.exists():
             path.write_text(ctx)
             print(f"Created: {path}")
-            n_files+=1
-    #if n_files:
-        # Only run npm/bun install if any files created (for now)
-    subprocess.run("bun install", cwd=root_dir, shell=True, check=True)
+            n_files += 1
+    subprocess.run(f"{_bun} install", cwd=root_dir, shell=True, check=True)
 
 # %% ../nbs/00_core.ipynb #50f9ce80
 def _mk_scripts(dirname, entry_file):
@@ -237,7 +238,7 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monste
         setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
 
         # 2. Build compiled assets
-        subprocess.run('bun run build', cwd=dirname, shell=True, check=True)
+        subprocess.run(f'{_bun} run build', cwd=dirname, shell=True, check=True)
 
         # 3. Splice script/link injections into headers
         def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
