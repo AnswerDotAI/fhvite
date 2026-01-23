@@ -7,30 +7,16 @@
 
 ### Installation
 
-Install latest from the GitHub
-[repository](https://github.com/AnswerDotAI/fhvite):
+Install the latest version from
+[GitHub](https://github.com/AnswerDotAI/fhvite):
 
-``` sh
-$ pip install git+https://github.com/AnswerDotAI/fhvite.git
+``` bash
+uv pip install git+https://github.com/AnswerDotAI/fhvite.git
 ```
 
-**Note:**  
-Make sure you have `npm` and `nodejs` installed in your path
-
-I recommend using `nvm` to manage nodejs versioning. You can follow
-these cmd’s extracted from the [official nodejs
-docs](https://nodejs.org/en/download)
-
-``` sh
-# Download and install nvm:
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-
-# in lieu of restarting the shell
-\. "$HOME/.nvm/nvm.sh"
-
-# Download and install Node.js:
-nvm install 22
-```
+This project requires [bun](https://bun.sh) to function properly. It
+will be automatically installed on first run if not already installed in
+the path
 
 ## How to use
 
