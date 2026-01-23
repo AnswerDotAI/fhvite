@@ -168,9 +168,9 @@ def setup_files(root_dir, entry_file, use_monster):
             path.write_text(ctx)
             print(f"Created: {path}")
             n_files+=1
-    if n_files:
+    #if n_files:
         # Only run npm/bun install if any files created (for now)
-        subprocess.run("bun install", cwd=root_dir, shell=True, check=True)
+    subprocess.run("bun install", cwd=root_dir, shell=True, check=True)
 
 # %% ../nbs/00_core.ipynb #50f9ce80
 def _mk_scripts(dirname, entry_file):
