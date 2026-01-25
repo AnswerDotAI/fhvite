@@ -7,16 +7,11 @@
 
 ### Installation
 
-Install the latest version from
-[GitHub](https://github.com/AnswerDotAI/fhvite):
+Install the latest version from pypi:
 
 ``` bash
-uv pip install git+https://github.com/AnswerDotAI/fhvite.git
+pip install fhvite
 ```
-
-This project requires [bun](https://bun.sh) to function properly. It
-will be automatically installed on first run if not already installed in
-the path
 
 ## How to use
 
@@ -34,24 +29,11 @@ app = FastHTML()
 add_vite(app)
 ```
 
-
-    > fastvite@0.0.0 build
-    > vite build
-
-    vite v7.0.4 building for production...
-    transforming...
-    ✓ 3 modules transformed.
-    rendering chunks...
-    computing gzip size...
-    ../dist/.vite/manifest.json          0.19 kB │ gzip:  0.14 kB
-    ../dist/assets/index-DwAzhI66.css  215.53 kB │ gzip: 25.35 kB
-    ../dist/assets/index-DSGW5Iaw.js     0.71 kB │ gzip:  0.40 kB
-    ✓ built in 103ms
-
 All necessary setup files will be generated if not already present.
 After that, subsequent server starts will simply build the assets and
 inject them into the app header.
 
-The plugin function also mounts a starlette `StaticFiles` route
-automatically, making the generated assets benefit from proper cacheing
-and static serving rules.
+The plugin function also mounts a FastHTML
+`StaticNoCache(directory=pwd/'dist')` route pointing to the output
+folder. This ensures the generated assets benefit from modern cacheing/
+asset serving behaviour automatically.
