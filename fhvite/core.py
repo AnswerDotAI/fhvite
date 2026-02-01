@@ -166,7 +166,8 @@ def setup_files(root_dir, entry_file, use_monster=True):
             path.write_text(ctx)
             print(f"Created: {path}")
             n_files += 1
-    subprocess.run("pybun install", cwd=root_dir, shell=True, check=True)
+    if n_files or not (Path(root_dir)/'bun.lock').exists():
+        subprocess.run("pybun install", cwd=root_dir, shell=True, check=True)
 
 # %% ../nbs/00_core.ipynb #50f9ce80
 def _mk_scripts(dirname, entry_file):
