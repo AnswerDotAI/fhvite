@@ -229,20 +229,10 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monste
     outdir = pwd/'dist'
     if not outdir.exists(): outdir.mkdir(parents=True, exist_ok=True)
     app.mount(f'/{dirname}', app=StaticNoCache(directory=pwd/'dist'), name=dirname)
-    async def _run(o):
-        # 1. Setup files & install with npm
+    @app.on_event('startup')
+    def _():
         setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
-
-        # 2. Build compiled assets
         subprocess.run('pybun run build', cwd=dirname, shell=True, check=True)
-
-        # 3. Splice script/link injections into headers
         def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
-        #if use_monster: def_hdrs.append(_monster_head)
         app.hdrs[0:0] = def_hdrs
 
-        # Run old lifespan (if set)
-        if app.lifespan:
-            async for _ in app.lifespan(o): yield
-        else: yield
-    app.set_lifespan(_run)
