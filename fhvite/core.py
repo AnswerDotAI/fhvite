@@ -223,7 +223,7 @@ _monster_head = [
 ]
 
 # %% ../nbs/00_core.ipynb #829ae52e
-def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.'):
+def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.', run_build=True):
     "Configure app to use vite"
     pwd = Path(directory)/dirname
     outdir = pwd/'dist'
@@ -232,7 +232,6 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monste
     @app.on_event('startup')
     def _():
         setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
-        subprocess.run('pybun run build', cwd=dirname, shell=True, check=True)
+        if run_build: subprocess.run('pybun run build', cwd=dirname, shell=True, check=True)
         def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
         app.hdrs[0:0] = def_hdrs
-
