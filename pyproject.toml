@@ -28,4 +28,5 @@ version = {attr = "fhvite.__version__"}
 include = ["fhvite"]
 
 [tool.nbdev]
+allowed_cell_metadata_keys = ["solveit_ai"]
 custom_sidebar = false
