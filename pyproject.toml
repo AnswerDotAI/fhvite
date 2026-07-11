@@ -12,7 +12,7 @@ license = {text = "Apache-2.0"}
 authors = [{name = "Curtis Allan", email = "ca@answer.ai"}]
 keywords = ['nbdev', 'jupyter', 'notebook', 'python']
 classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
-dependencies = ['fastcore', 'python-fasthtml', 'pybun']
+dependencies = ['fastcore', 'python-fasthtml>=0.14.6', 'pybun']
 
 [project.urls]
 Repository = "https://github.com/AnswerDotAI/fhvite"

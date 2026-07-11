@@ -29,11 +29,6 @@ app = FastHTML()
 add_vite(app)
 ```
 
-All necessary setup files will be generated if not already present.
-After that, subsequent server starts will simply build the assets and
-inject them into the app header.
+All necessary setup files will be generated if not already present. After that, subsequent server starts will simply build the assets and inject them into the app header.
 
-The plugin function also mounts a FastHTML
-`StaticNoCache(directory=pwd/'dist')` route pointing to the output
-folder. This ensures the generated assets benefit from modern cacheing/
-asset serving behaviour automatically.
+The plugin function also mounts a FastHTML `StaticNoCache(directory=pwd/'dist')` route pointing to the output folder. This ensures the generated assets benefit from modern cacheing/ asset serving behaviour automatically.
