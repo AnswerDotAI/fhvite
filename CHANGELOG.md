@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.5
+
+### New Features
+
+- Reinstall when bun.lock is newer than `node_modules` ([#3](https://github.com/AnswerDotAI/fhvite/issues/3))
+
+
 ## 0.0.4
 
 ### New Features
@@ -26,4 +33,3 @@
 ## 0.0.1
 
 - init release
-
