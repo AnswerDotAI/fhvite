@@ -168,8 +168,10 @@ def setup_files(root_dir, entry_file, use_monster=True):
             path.write_text(ctx)
             print(f"Created: {path}")
             n_files += 1
-    if n_files or not (Path(root_dir)/'bun.lock').exists():
+    lock,nm = Path(root_dir)/'bun.lock',Path(root_dir)/'node_modules'
+    if n_files or not lock.exists() or not nm.exists() or lock.stat().st_mtime > nm.stat().st_mtime:
         subprocess.run("pybun install", cwd=root_dir, shell=True, check=True)
+        if nm.exists(): nm.touch()  # one install per lockfile change: a pulled bun.lock is newer than node_modules until now
 
 # %% ../nbs/00_core.ipynb #50f9ce80
 def _mk_scripts(dirname, entry_file):
