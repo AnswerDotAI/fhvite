@@ -1,0 +1,62 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "FhVite",
+    "section": "",
+    "text": "source\n\n\ndef setup_files(\n    root_dir, entry_file, use_monster:bool=True\n):\nSetup Vite files in project, with FastHTML configuration\n\n\n\nsetup_files(root_dir='vite', entry_file='index.js')\n\nCreated: vite/vite.config.js\nCreated: vite/package.json\nCreated: vite/src/style.css\nCreated: vite/src/index.js\n\nadded 113 packages, and audited 114 packages in 7s\n\n18 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n\n\n\nfor path in _monster_temp.keys():\n    print('#'+path, (Path('vite')/path).read_text()[:100], sep='\\n')\n    print('---')\n\n#vite.config.js\nimport franken from \"franken-ui/plugin-vite\";\nimport tailwindcss from \"@tailwindcss/vite\";\nimport { \n---\n#package.json\n{\n  \"name\": \"fastvite\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n\n---\n#src/style.css\n@import \"tailwindcss\";\n@import \"franken-ui/css/franken-ui.css\";\n@source \"../../\";\n\n@theme {\n  --colo\n---\n#src/index.js\nimport \"vite/modulepreload-polyfill\";\nimport \"./style.css\";\n---\n\n\n\n\n\n\nsubprocess.run('pybun run build', cwd='vite', shell=True, check=True)\n\n\n&gt; fastvite@0.0.0 build\n&gt; vite build\n\nvite v7.0.4 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../dist/.vite/manifest.json          0.19 kB │ gzip:  0.14 kB\n../dist/assets/index-DwAzhI66.css  215.53 kB │ gzip: 25.35 kB\n../dist/assets/index-DSGW5Iaw.js     0.71 kB │ gzip:  0.40 kB\n✓ built in 101ms\n\n\nCompletedProcess(args='npm run build', returncode=0)\n\n\n\nprint(*(o for o in _mk_scripts(dirname=\"vite\", entry_file='index.js')))\n\n&lt;link rel=\"stylesheet\" href=\"/vite/assets/index-DwAzhI66.css\"&gt; &lt;script type=\"module\" src=\"/vite/assets/index-DSGW5Iaw.js\"&gt;&lt;/script&gt;\n\n\n\n\n\nThe dist mount is served with fasthtml’s StaticImmutable. Vite’s output uses content-hashed filenames, so a changed file always gets a new URL, browsers can safely cache forever, and revalidating would be pure waste. (.vite/manifest.json is served under the same mount without a hashed name, but it’s only read from disk by _mk_scripts, never fetched by browsers.)\n\n\nsource\n\n\ndef add_vite(\n    app:FastHTML, entry_file:str='index.js', dirname:str='frontend', use_monster:bool=True, directory:str='.',\n    run_build:bool=True\n):\nConfigure app to use vite\n\n\n\nfrom fasthtml.common import *\n\n\napp = FastHTML()\napp\n\n&lt;fasthtml.core.FastHTML&gt;\n\n\n\napp = FastHTML(surreal=False)\nrt = app.route\n\n\n#app.hdrs\n\n\nadd_vite(app, dirname='vite')\n\n\n&gt; fastvite@0.0.0 build\n&gt; vite build\n\nvite v7.0.4 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../dist/.vite/manifest.json          0.19 kB │ gzip:  0.14 kB\n../dist/assets/index-DwAzhI66.css  215.53 kB │ gzip: 25.35 kB\n../dist/assets/index-DSGW5Iaw.js     0.71 kB │ gzip:  0.40 kB\n✓ built in 91ms\n\n\n\napp.hdrs\n\n[meta((),{'charset': 'utf-8'}),\n meta((),{'name': 'viewport', 'content': 'width=device-width, initial-scale=1, viewport-fit=cover'}),\n link((),{'rel': 'stylesheet', 'href': '/static/assets/index-DwAzhI66.css'}),\n script(('',),{'type': 'module', 'src': '/static/assets/index-DSGW5Iaw.js'}),\n link((),{'rel': 'preconnect', 'href': 'https://cdn.jsdelivr.net'}),\n script(('\\n    const htmlElement = document.documentElement;\\n\\n    const __FRANKEN__ = JSON.parse(\\n    localStorage.getItem(\"__FRANKEN__\") || \"{}\",\\n    );\\n\\n    if (\\n    __FRANKEN__.mode === \"dark\" ||\\n    (!__FRANKEN__.mode &&\\n        window.matchMedia(\"(prefers-color-scheme: dark)\").matches)\\n    ) {\\n    htmlElement.classList.add(\"dark\");\\n    } else {\\n    htmlElement.classList.remove(\"dark\");\\n    }\\n\\n    htmlElement.classList.add(__FRANKEN__.theme || \"uk-theme-zinc\");\\n    htmlElement.classList.add(__FRANKEN__.radii || \"uk-radii-md\");\\n    htmlElement.classList.add(__FRANKEN__.shadows || \"uk-shadows-md\");\\n    htmlElement.classList.add(__FRANKEN__.font || \"uk-font-sm\");',),{}),\n script(('',),{'src': 'https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/core.iife.js', 'type': 'module'}),\n script(('',),{'src': 'https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/icon.iife.js', 'type': 'module'}),\n script((),{'src': 'https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js'}),\n script((),{'src': 'https://cdn.jsdelivr.net/gh/answerdotai/fasthtml-js@1.0.12/fasthtml.js'}),\n script((\"\\n    function sendmsg() {\\n        window.parent.postMessage({height: document.documentElement.offsetHeight}, '*');\\n    }\\n    window.onload = function() {\\n        sendmsg();\\n        document.body.addEventListener('htmx:afterSettle',    sendmsg);\\n        document.body.addEventListener('htmx:wsAfterMessage', sendmsg);\\n    };\",),{})]",
+    "crumbs": [
+      "FhVite"
+    ]
+  },
+  {
+    "objectID": "core.html#imports",
+    "href": "core.html#imports",
+    "title": "FhVite",
+    "section": "",
+    "text": "source\n\n\ndef setup_files(\n    root_dir, entry_file, use_monster:bool=True\n):\nSetup Vite files in project, with FastHTML configuration\n\n\n\nsetup_files(root_dir='vite', entry_file='index.js')\n\nCreated: vite/vite.config.js\nCreated: vite/package.json\nCreated: vite/src/style.css\nCreated: vite/src/index.js\n\nadded 113 packages, and audited 114 packages in 7s\n\n18 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n\n\n\nfor path in _monster_temp.keys():\n    print('#'+path, (Path('vite')/path).read_text()[:100], sep='\\n')\n    print('---')\n\n#vite.config.js\nimport franken from \"franken-ui/plugin-vite\";\nimport tailwindcss from \"@tailwindcss/vite\";\nimport { \n---\n#package.json\n{\n  \"name\": \"fastvite\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n\n---\n#src/style.css\n@import \"tailwindcss\";\n@import \"franken-ui/css/franken-ui.css\";\n@source \"../../\";\n\n@theme {\n  --colo\n---\n#src/index.js\nimport \"vite/modulepreload-polyfill\";\nimport \"./style.css\";\n---\n\n\n\n\n\n\nsubprocess.run('pybun run build', cwd='vite', shell=True, check=True)\n\n\n&gt; fastvite@0.0.0 build\n&gt; vite build\n\nvite v7.0.4 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../dist/.vite/manifest.json          0.19 kB │ gzip:  0.14 kB\n../dist/assets/index-DwAzhI66.css  215.53 kB │ gzip: 25.35 kB\n../dist/assets/index-DSGW5Iaw.js     0.71 kB │ gzip:  0.40 kB\n✓ built in 101ms\n\n\nCompletedProcess(args='npm run build', returncode=0)\n\n\n\nprint(*(o for o in _mk_scripts(dirname=\"vite\", entry_file='index.js')))\n\n&lt;link rel=\"stylesheet\" href=\"/vite/assets/index-DwAzhI66.css\"&gt; &lt;script type=\"module\" src=\"/vite/assets/index-DSGW5Iaw.js\"&gt;&lt;/script&gt;\n\n\n\n\n\nThe dist mount is served with fasthtml’s StaticImmutable. Vite’s output uses content-hashed filenames, so a changed file always gets a new URL, browsers can safely cache forever, and revalidating would be pure waste. (.vite/manifest.json is served under the same mount without a hashed name, but it’s only read from disk by _mk_scripts, never fetched by browsers.)\n\n\nsource\n\n\ndef add_vite(\n    app:FastHTML, entry_file:str='index.js', dirname:str='frontend', use_monster:bool=True, directory:str='.',\n    run_build:bool=True\n):\nConfigure app to use vite\n\n\n\nfrom fasthtml.common import *\n\n\napp = FastHTML()\napp\n\n&lt;fasthtml.core.FastHTML&gt;\n\n\n\napp = FastHTML(surreal=False)\nrt = app.route\n\n\n#app.hdrs\n\n\nadd_vite(app, dirname='vite')\n\n\n&gt; fastvite@0.0.0 build\n&gt; vite build\n\nvite v7.0.4 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../dist/.vite/manifest.json          0.19 kB │ gzip:  0.14 kB\n../dist/assets/index-DwAzhI66.css  215.53 kB │ gzip: 25.35 kB\n../dist/assets/index-DSGW5Iaw.js     0.71 kB │ gzip:  0.40 kB\n✓ built in 91ms\n\n\n\napp.hdrs\n\n[meta((),{'charset': 'utf-8'}),\n meta((),{'name': 'viewport', 'content': 'width=device-width, initial-scale=1, viewport-fit=cover'}),\n link((),{'rel': 'stylesheet', 'href': '/static/assets/index-DwAzhI66.css'}),\n script(('',),{'type': 'module', 'src': '/static/assets/index-DSGW5Iaw.js'}),\n link((),{'rel': 'preconnect', 'href': 'https://cdn.jsdelivr.net'}),\n script(('\\n    const htmlElement = document.documentElement;\\n\\n    const __FRANKEN__ = JSON.parse(\\n    localStorage.getItem(\"__FRANKEN__\") || \"{}\",\\n    );\\n\\n    if (\\n    __FRANKEN__.mode === \"dark\" ||\\n    (!__FRANKEN__.mode &&\\n        window.matchMedia(\"(prefers-color-scheme: dark)\").matches)\\n    ) {\\n    htmlElement.classList.add(\"dark\");\\n    } else {\\n    htmlElement.classList.remove(\"dark\");\\n    }\\n\\n    htmlElement.classList.add(__FRANKEN__.theme || \"uk-theme-zinc\");\\n    htmlElement.classList.add(__FRANKEN__.radii || \"uk-radii-md\");\\n    htmlElement.classList.add(__FRANKEN__.shadows || \"uk-shadows-md\");\\n    htmlElement.classList.add(__FRANKEN__.font || \"uk-font-sm\");',),{}),\n script(('',),{'src': 'https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/core.iife.js', 'type': 'module'}),\n script(('',),{'src': 'https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.14/dist/js/icon.iife.js', 'type': 'module'}),\n script((),{'src': 'https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js'}),\n script((),{'src': 'https://cdn.jsdelivr.net/gh/answerdotai/fasthtml-js@1.0.12/fasthtml.js'}),\n script((\"\\n    function sendmsg() {\\n        window.parent.postMessage({height: document.documentElement.offsetHeight}, '*');\\n    }\\n    window.onload = function() {\\n        sendmsg();\\n        document.body.addEventListener('htmx:afterSettle',    sendmsg);\\n        document.body.addEventListener('htmx:wsAfterMessage', sendmsg);\\n    };\",),{})]",
+    "crumbs": [
+      "FhVite"
+    ]
+  },
+  {
+    "objectID": "core.html#testing-in-a-running-app",
+    "href": "core.html#testing-in-a-running-app",
+    "title": "FhVite",
+    "section": "Testing in a running app",
+    "text": "Testing in a running app\n\nserver = JupyUvi(app)\nShow = partial(HTMX, app=app)\n\n\n@rt\ndef index():\n    return Titled('FhVite Test App', \n                  H1('This is a test!'), \n                  Div(Button('Click Me!', cls=\"uk-btn-primary uk-btn-xs\"))\n                 )\n\n\nShow('/')\n\n\nserver.stop()\n\n\n!rm -rf vite",
+    "crumbs": [
+      "FhVite"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fhvite",
+    "section": "",
+    "text": "Install the latest version from pypi:\npip install fhvite",
+    "crumbs": [
+      "fhvite"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fhvite",
+    "section": "",
+    "text": "Install the latest version from pypi:\npip install fhvite",
+    "crumbs": [
+      "fhvite"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "fhvite",
+    "section": "How to use",
+    "text": "How to use\nImport into an existing FastHTML application and add the following:\n\nfrom fasthtml.common import *\n\n# Add this import\nfrom fhvite.core import add_vite\n\napp = FastHTML()\n\n# Add this line\nadd_vite(app)\n\nAll necessary setup files will be generated if not already present. After that, subsequent server starts will simply build the assets and inject them into the app header.\nThe plugin function also mounts a FastHTML StaticNoCache(directory=pwd/'dist') route pointing to the output folder. This ensures the generated assets benefit from modern cacheing/ asset serving behaviour automatically.",
+    "crumbs": [
+      "fhvite"
+    ]
+  }
+]
