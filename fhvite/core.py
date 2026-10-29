@@ -158,8 +158,7 @@ import "basecoat-css/all";'''
 
 # %% ../nbs/00_core.ipynb #f74565d6
 def setup_files(root_dir, entry_file, use_monster=True):
-    "Setup Vite files in project, with FastHTML configuration"
-    n_files = 0
+    "Create missing Vite files and install project dependencies"
     templ = _monster_temp if use_monster else _basecoat_temp
     for path,ctx in templ.items():
         path = Path(root_dir)/path
@@ -167,16 +166,12 @@ def setup_files(root_dir, entry_file, use_monster=True):
         if not path.exists():
             path.write_text(ctx)
             print(f"Created: {path}")
-            n_files += 1
-    lock,nm = Path(root_dir)/'bun.lock',Path(root_dir)/'node_modules'
-    if n_files or not lock.exists() or not nm.exists() or lock.stat().st_mtime > nm.stat().st_mtime:
-        subprocess.run("pybun install", cwd=root_dir, shell=True, check=True)
-        if nm.exists(): nm.touch()  # one install per lockfile change: a pulled bun.lock is newer than node_modules until now
+    subprocess.run(['pybun', 'install'], cwd=root_dir, check=True)
 
 # %% ../nbs/00_core.ipynb #50f9ce80
-def _mk_scripts(dirname, entry_file):
+def _mk_scripts(dirname, entry_file, directory='.'):
     "Create necessary vite headers and inject into app"
-    manifest = loads(Path(dirname).joinpath('dist/.vite/manifest.json').read_text())
+    manifest = loads((Path(directory)/dirname/'dist/.vite/manifest.json').read_text())
     entry = f'src/{entry_file}'
     def _imported_chunks(name, seen=None):
         if seen is None: seen = set()
@@ -229,13 +224,15 @@ _monster_head = [
 # %% ../nbs/00_core.ipynb #829ae52e
 def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.', run_build=True):
     "Configure app to use vite"
-    pwd = Path(directory)/dirname
+    directory = Path(directory).resolve()
+    pwd = directory/dirname
     outdir = pwd/'dist'
-    if not outdir.exists(): outdir.mkdir(parents=True, exist_ok=True)
-    app.mount(f'/{dirname}', app=StaticImmutable(directory=pwd/'dist'), name=dirname)
+    if run_build: outdir.mkdir(parents=True, exist_ok=True)
+    app.mount(f'/{dirname}', app=StaticImmutable(directory=outdir), name=dirname)
     @app.on_event('startup')
     def _():
-        setup_files(root_dir=dirname, entry_file=entry_file, use_monster=use_monster)
-        if run_build: subprocess.run('pybun run build', cwd=dirname, shell=True, check=True)
-        def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file)]
+        if run_build:
+            setup_files(root_dir=pwd, entry_file=entry_file, use_monster=use_monster)
+            subprocess.run(['pybun', 'run', 'build'], cwd=pwd, check=True)
+        def_hdrs = [*_mk_scripts(dirname=dirname, entry_file=entry_file, directory=directory)]
         app.hdrs[0:0] = def_hdrs

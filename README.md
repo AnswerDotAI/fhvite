@@ -29,6 +29,6 @@ app = FastHTML()
 add_vite(app)
 ```
 
-All necessary setup files will be generated if not already present. After that, subsequent server starts will simply build the assets and inject them into the app header.
+At app startup, [`add_vite`](https://AnswerDotAI.github.io/fhvite/core.html#add_vite) creates missing setup files, runs `pybun install`, builds assets with `pybun run build` and adds the entry-point scripts and stylesheets to the app header. Installation follows the project’s lockfile.
 
-The plugin function also mounts a FastHTML `StaticNoCache(directory=pwd/'dist')` route pointing to the output folder. This ensures the generated assets benefit from modern cacheing/ asset serving behaviour automatically.
+For a prebuilt deployment, use `add_vite(app, run_build=False)`. It reads the existing manifest without creating setup files, installing dependencies or building. Both modes serve content-hashed build assets through FastHTML’s `StaticImmutable`.
