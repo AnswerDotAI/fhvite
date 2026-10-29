@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.6
+
+### New Features
+
+- Always run pybun install on build, skip setup/install/build when `run_build`=False, and resolve paths relative to the directory arg ([#4](https://github.com/AnswerDotAI/fhvite/issues/4))
+
+
 ## 0.0.5
 
 ### New Features
