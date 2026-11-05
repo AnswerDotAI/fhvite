@@ -8,7 +8,8 @@ Docs: https://AnswerDotAI.github.io/fhvite/core.html.md"""
 __all__ = ['setup_files', 'add_vite']
 
 # %% ../nbs/00_core.ipynb #943022ba
-import subprocess, shutil
+import asyncio, subprocess, shutil
+from contextlib import asynccontextmanager
 from fasthtml.common import *
 from fastcore.utils import *
 
@@ -222,10 +223,38 @@ _monster_head = [
 ]
 
 # %% ../nbs/00_core.ipynb #829ae52e
-def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.', run_build=True):
-    "Configure app to use vite"
+def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monster=True, directory='.', run_build=True,
+             dev=False, port=5173):
+    "Configure app to use vite; `dev=True` owns a localhost Vite server with hot module replacement"
     directory = Path(directory).resolve()
     pwd = directory/dirname
+    if dev:
+        url = f'http://127.0.0.1:{port}/{dirname}'
+        previous = app.router.lifespan_context
+        @asynccontextmanager
+        async def lifespan(app):
+            setup_files(root_dir=pwd, entry_file=entry_file, use_monster=use_monster)
+            proc = await asyncio.create_subprocess_exec('pybun', '--no-orphans', 'x', '--no-install', 'vite',
+                '--host', '127.0.0.1', '--port', str(port), '--strictPort', '--base', f'/{dirname}/', '--logLevel', 'info',
+                stdout=asyncio.subprocess.PIPE, cwd=pwd)
+            ready = asyncio.get_running_loop().create_future()
+            async def output():
+                async for line in proc.stdout:
+                    print(line.decode(), end='')
+                    if b'Local:' in line and not ready.done(): ready.set_result(None)
+                if not ready.done(): ready.set_exception(RuntimeError(f'Vite exited with status {await proc.wait()}'))
+            reader = asyncio.create_task(output())
+            try:
+                await asyncio.wait_for(ready, timeout=10)
+                app.hdrs[0:0] = [Script(type='module', src=f'{url}/@vite/client'),
+                                Script(type='module', src=f'{url}/src/{entry_file}')]
+                async with previous(app) as state: yield state
+            finally:
+                if proc.returncode is None: proc.terminate()
+                await proc.wait()
+                await reader
+        app.set_lifespan(lifespan)
+        return
     outdir = pwd/'dist'
     if run_build: outdir.mkdir(parents=True, exist_ok=True)
     app.mount(f'/{dirname}', app=StaticImmutable(directory=outdir), name=dirname)
