@@ -239,7 +239,7 @@ def add_vite(app:FastHTML, entry_file='index.js', dirname='frontend', use_monste
             setup_files(root_dir=pwd, entry_file=entry_file, use_monster=use_monster)
             proc = await asyncio.create_subprocess_exec('pybun', '--no-orphans', 'x', '--no-install', 'vite',
                 '--host', '127.0.0.1', '--port', str(port), '--strictPort', '--base', f'/{dirname}/', '--logLevel', 'info',
-                stdout=asyncio.subprocess.PIPE, cwd=pwd)
+                stdout=asyncio.subprocess.PIPE, cwd=pwd, env={**os.environ, 'NO_COLOR': '1'})
             ready = asyncio.get_running_loop().create_future()
             async def output():
                 async for line in proc.stdout:
