@@ -32,3 +32,5 @@ add_vite(app)
 At app startup, [`add_vite`](https://AnswerDotAI.github.io/fhvite/core.html#add_vite) creates missing setup files, runs `pybun install`, builds assets with `pybun run build` and adds the entry-point scripts and stylesheets to the app header. Installation follows the project’s lockfile.
 
 For a prebuilt deployment, use `add_vite(app, run_build=False)`. It reads the existing manifest without creating setup files, installing dependencies or building. Both modes serve content-hashed build assets through FastHTML’s `StaticImmutable`.
+
+Use `vite_headers(outdir, base='/workspace/')` when you need to mount prebuilt assets yourself, including inside a mounted app. It returns the entry scripts, stylesheets and module preloads without startup work.
