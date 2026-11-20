@@ -160,14 +160,19 @@ import "basecoat-css/all";'''
 # %% ../nbs/00_core.ipynb #f74565d6
 def setup_files(root_dir, entry_file, use_monster=True):
     "Create missing Vite files and install project dependencies"
+    root_dir = Path(root_dir).resolve()
     templ = _monster_temp if use_monster else _basecoat_temp
     for path,ctx in templ.items():
-        path = Path(root_dir)/path
+        path = root_dir/path
         path.parent.mkdir(parents=True, exist_ok=True)
         if not path.exists():
             path.write_text(ctx)
             print(f"Created: {path}")
-    subprocess.run(['pybun', 'install'], cwd=root_dir, check=True)
+    command, cwd = ['pybun', 'install'], root_dir
+    if npm := shutil.which('npm'):
+        prefix = Path(subprocess.check_output([npm, 'prefix'], cwd=root_dir, text=True).strip())
+        if (prefix/'package-lock.json').exists(): command, cwd = [npm, 'install'], prefix
+    subprocess.run(command, cwd=cwd, check=True)
 
 # %% ../nbs/00_core.ipynb #50f9ce80
 def vite_headers(
